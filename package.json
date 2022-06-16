@@ -1,0 +1,33 @@
+{
+  "name": "employee-tracker",
+  "version": "1.0.0",
+  "description": "Easily view and manage the departments, roles, and employees in a company",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RichardZhang01/employee-tracker.git"
+  },
+  "keywords": [
+    "Node.js",
+    "MySQL",
+    "Inquirer",
+    "MySQL2",
+    "Databases",
+    "Database",
+    "Management"
+  ],
+  "author": "Richard Zhang",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/RichardZhang01/employee-tracker/issues"
+  },
+  "homepage": "https://github.com/RichardZhang01/employee-tracker#readme",
+  "dependencies": {
+    "console.table": "^0.10.0",
+    "inquirer": "^8.2.4",
+    "mysql2": "^2.3.3"
+  }
+}
