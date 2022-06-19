@@ -4,16 +4,21 @@ const menuPrompt = [
         name: 'menu',
         type: 'list',
         message: 'What would you like to do?',
-        loop: false,
         choices: [
             'View All Employees',
             'View Employees By Manager',
+            'View Employees By Department',
             'Add Employee',
             'Update Employee Role',
+            'Update Employee Manager',
+            'Delete Employee',
             'View All Roles',
             'Add Role',
+            'Delete Role',
             'View All Departments',
             'Add Department',
+            'Delete Department',
+            'View Total Utilized Budget By Department',
             'Quit'         
         ],
     },
@@ -137,6 +142,69 @@ const addEmployeePrompt = (employees, roles) => {
 
 };
 
+const deleteDepartmentPrompt = (departments) => {
+
+    return [
+    
+        {
+            name: 'departmentName',
+            type: 'list',
+            message: "Which department would you like to delete?",
+            choices: departments
+        },
+
+        {
+            name: 'confirm',
+            type: 'confirm',
+            message: "Are you sure you want to delete that department?"
+        },
+    
+    ]
+
+};
+
+const deleteRolePrompt = (roles) => {
+
+    return [
+    
+        {
+            name: 'roleName',
+            type: 'list',
+            message: "Which role would you like to delete?",
+            choices: roles
+        },
+
+        {
+            name: 'confirm',
+            type: 'confirm',
+            message: "Are you sure you want to delete that role?"
+        },
+    
+    ]
+
+};
+
+const deleteEmployeePrompt = (employees) => {
+
+    return [
+    
+        {
+            name: 'employeeName',
+            type: 'list',
+            message: "Which employee would you like to delete?",
+            choices: employees
+        },
+
+        {
+            name: 'confirm',
+            type: 'confirm',
+            message: "Are you sure you want to delete that employee?"
+        },
+    
+    ]
+
+};
+
 const updateEmployeeRolePrompt = (employees, roles) => {
 
     return [
@@ -159,6 +227,28 @@ const updateEmployeeRolePrompt = (employees, roles) => {
 
 };
 
+const updateEmployeeManagerPrompt = (employees, managers) => {
+
+    return [
+
+        {
+            name: 'employeeName',
+            type: 'list',
+            message: "Which employee's manager do you want to update?",
+            choices: employees
+        },
+
+        {
+            name: 'newManager',
+            type: 'list',
+            message: "Which manager do you want to assign the selected employee?",
+            choices: managers
+        }
+
+    ];
+
+};
+
 const viewByManagerPrompt = (managers) => {
 
     return [
@@ -172,6 +262,36 @@ const viewByManagerPrompt = (managers) => {
 
     ];
 
+};
+
+const viewByDepartmentPrompt = (departments) => {
+
+    return [
+
+        {
+            name: 'departmentName',
+            type: 'list',
+            message: "Which department's employees would you like to view?",
+            choices: departments
+        }
+
+    ];
+
+}
+
+const viewDepartmentBudgetPrompt = (departments) => {
+
+    return [
+
+        {
+            name: 'departmentName',
+            type: 'list',
+            message: "Which department's total utilized budget would you like to view?",
+            choices: departments
+        }
+
+    ];
+
 }
 
 module.exports = {
@@ -179,6 +299,12 @@ module.exports = {
     addDepartmentPrompt,
     addRolePrompt,
     addEmployeePrompt,
+    deleteDepartmentPrompt,
+    deleteRolePrompt,
+    deleteEmployeePrompt,
     updateEmployeeRolePrompt,
-    viewByManagerPrompt
+    updateEmployeeManagerPrompt,
+    viewByManagerPrompt,
+    viewByDepartmentPrompt,
+    viewDepartmentBudgetPrompt
 }

@@ -7,21 +7,33 @@ const {
   addDepartmentPrompt,
   addRolePrompt,
   addEmployeePrompt,
+  deleteDepartmentPrompt,
+  deleteRolePrompt,
+  deleteEmployeePrompt,
   updateEmployeeRolePrompt,
-  viewByManagerPrompt 
+  updateEmployeeManagerPrompt,
+  viewByManagerPrompt,
+  viewByDepartmentPrompt,
+  viewDepartmentBudgetPrompt 
 } = require('./helpers/prompts.js');
 const { 
   departmentsTableQuery, 
   rolesTableQuery, 
   employeesTableQuery,
   employeesByManagerQuery,
+  employeesByDepartmentQuery,
+  budgetByDepartmentQuery,
   getEmployeesQuery,
   getRolesQuery,
   getManagersQuery,
   insertDepartmentQuery,
   insertRoleQuery,
   insertEmployeeQuery,
-  updateEmployeeRoleQuery 
+  deleteDepartmentQuery,
+  deleteRoleQuery,
+  deleteEmployeeQuery,
+  updateEmployeeRoleQuery,
+  updateEmployeeManagerQuery 
 } = require('./helpers/queries.js');
 
 const db = mysql.createConnection(
@@ -49,12 +61,24 @@ const displayMenu = () => {
           displayEmployeesByManager();
           break;
 
+        case 'View Employees By Department':
+          displayEmployeesByDepartment();
+          break;
+
         case 'Add Employee':
           addEmployee();
           break;
 
         case 'Update Employee Role':
           updateEmployeeRole();
+          break;
+
+        case 'Update Employee Manager':
+          updateEmployeeManager();
+          break;
+
+        case 'Delete Employee':
+          deleteEmployee();
           break;
 
         case 'View All Roles':
@@ -65,12 +89,24 @@ const displayMenu = () => {
           addRole();
           break;
 
+        case 'Delete Role':
+          deleteRole();
+          break;
+
         case 'View All Departments':
           displayTable('Departments');
           break;
 
         case 'Add Department':
           addDepartment();
+          break;
+
+        case 'Delete Department':
+          deleteDepartment();
+          break;
+        
+        case 'View Total Utilized Budget By Department':
+          displayBudget();
           break;
 
         case 'Quit':
@@ -126,17 +162,76 @@ const displayEmployeesByManager = () => {
     .prompt(viewByManagerPrompt(managerNames))
       .then(({ managerName }) => {
 
-        let managerID;
-        managers.forEach((manager) => {
-          if(manager.name === managerName) managerID = manager.id;
-        });
-
         console.log('\n');
 
-        db.query(employeesByManagerQuery(managerID), (err, results) => {
+        db.query(employeesByManagerQuery(managerName), (err, results) => {
           err ? console.error(err) : console.table(results);
           displayMenu();
         })
+      })
+      .catch(err => console.error(err)
+      );
+  });
+
+};
+
+const displayEmployeesByDepartment = () => {
+
+  let departments = [];
+
+  db.query(departmentsTableQuery, (err, results) => {
+    err ? console.error(err) : departments = results;
+
+    const departmentNames = departments.map(department => department.name);
+
+    inquirer
+    .prompt(viewByDepartmentPrompt(departmentNames))
+      .then(({ departmentName }) => {
+
+        console.log('\n');
+
+        db.query(employeesByDepartmentQuery(departmentName), (err, results) => {
+          
+          if (err) {
+            console.error(err);
+          } else {
+            (!results.length) ? console.log("\x1b[31mThere are no employees in that department\x1b[0m") : console.table(results);
+          };
+
+          displayMenu();
+        });
+      })
+      .catch(err => console.error(err)
+      );
+  });
+
+};
+
+const displayBudget = () => {
+
+  let departments = [];
+
+  db.query(departmentsTableQuery, (err, results) => {
+    err ? console.error(err) : departments = results;
+
+    const departmentNames = departments.map(department => department.name);
+
+    inquirer
+    .prompt(viewDepartmentBudgetPrompt(departmentNames))
+      .then(({ departmentName }) => {
+
+        console.log('\n');
+
+        db.query(budgetByDepartmentQuery(departmentName), (err, results) => {
+          
+          if (err) {
+            console.error(err);
+          } else {
+            (!results.length) ? console.log(`\x1b[31mThe ${departmentName} department has not utilized any of their budget\x1b[0m`) : console.table(results);
+          };
+
+          displayMenu();
+        });
       })
       .catch(err => console.error(err)
       );
@@ -232,6 +327,123 @@ const addEmployee = () => {
 
 };
 
+const deleteDepartment = () => {
+
+  let departments = [];
+
+  db.query(departmentsTableQuery, (err, results) => {
+    err ? console.error(err) : departments = results;
+
+    const departmentNames = departments.map(department => department.name);
+
+    inquirer
+    .prompt(deleteDepartmentPrompt(departmentNames))
+      .then(({ departmentName, confirm }) => {
+
+        if(confirm) {
+
+          let departmentID;
+          departments.forEach((department) => {
+            if(department.name === departmentName) departmentID = department.id;
+          });
+
+          db.query(deleteDepartmentQuery(departmentID), (err, results) => {
+            err ? console.error(err) : console.log(`Deleted ${departmentName} department from the database\n`);
+            displayMenu();
+          })
+
+        } else {
+
+          console.log('Deletion cancelled');
+          displayMenu();
+
+        }
+
+      })
+      .catch(err => console.error(err)
+      );
+  });
+
+};
+
+const deleteRole = () => {
+
+  let roles = [];
+
+  db.query(getRolesQuery, (err, results) => {
+    err ? console.error(err) : roles = results;
+
+    const roleNames = roles.map(role => role.title);
+
+    inquirer
+    .prompt(deleteRolePrompt(roleNames))
+      .then(({ roleName, confirm }) => {
+
+        if(confirm) {
+
+          let roleID;
+          roles.forEach((role) => {
+            if(role.title === roleName) roleID = role.id;
+          });
+
+          db.query(deleteRoleQuery(roleID), (err, results) => {
+            err ? console.error(err) : console.log(`Deleted ${roleName} role from the database\n`);
+            displayMenu();
+          })
+
+        } else {
+
+          console.log('Deletion cancelled');
+          displayMenu();
+
+        }
+
+      })
+      .catch(err => console.error(err)
+      );
+  });
+  
+};
+
+const deleteEmployee = () => {
+
+  let employees = [];
+
+  db.query(getEmployeesQuery, (err, results) => {
+    err ? console.error(err) : employees = results;
+
+    const employeeNames = employees.map(employee => employee.name);
+
+    inquirer
+    .prompt(deleteEmployeePrompt(employeeNames))
+      .then(({ employeeName, confirm }) => {
+
+        if(confirm) {
+
+          let employeeID;
+          employees.forEach((employee) => {
+            if(employee.name === employeeName) employeeID = employee.id;
+          });
+
+          db.query(deleteEmployeeQuery(employeeID), (err, results) => {
+            err ? console.error(err) : console.log(`Deleted employee ${employeeName} from the database\n`);
+            displayMenu();
+          })
+
+        } else {
+
+          console.log('Deletion cancelled');
+          displayMenu();
+
+        }
+
+      })
+      .catch(err => console.error(err)
+      );
+  });
+  
+};
+
 const updateEmployeeRole = () => {
 
   let employees = [];
@@ -275,10 +487,47 @@ const updateEmployeeRole = () => {
 
 };
 
+const updateEmployeeManager = () => {
+
+  let employees = [];
+
+  db.query(getEmployeesQuery, (err, results) => {
+    err ? console.error(err) : employees = results;
+    
+    const employeeNames = employees.map(employee => employee.name);
+    const managerNames = employees.map(employee => employee.name);
+    managerNames.unshift("None");
+    
+      inquirer
+      .prompt(updateEmployeeManagerPrompt(employeeNames, managerNames))
+      .then(({ employeeName, newManager }) => {
+
+        let newManagerID = null;
+        employees.forEach((manager) => {
+          if(manager.name === newManager) newManagerID = manager.id;
+        });
+
+        let employeeID;
+        employees.forEach((employee) => {
+          if(employee.name === employeeName) employeeID = employee.id;
+        });
+
+        db.query(updateEmployeeManagerQuery(employeeID, newManagerID), (err, results) => {
+          err ? console.error(err) : console.log(`Updated employee ${employeeName}'s manager to ${newManager}\n`);
+          displayMenu();
+        })
+      })
+      .catch(err => console.error(err)
+      );
+
+  });
+
+};
+
 const quit = () => {
   console.log("\x1b[32mGoodbye!\x1b[0m");
   process.exit();
-}
+};
 
 const init = () => {
   displayMenu();
