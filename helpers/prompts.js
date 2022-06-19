@@ -134,11 +134,34 @@ const addEmployeePrompt = (employees, roles) => {
 
     ];
 
+};
+
+const updateEmployeeRolePrompt = (employees, roles) => {
+
+    return [
+
+        {
+            name: 'employeeName',
+            type: 'list',
+            message: "Which employee's role do you want to update?",
+            choices: employees
+        },
+
+        {
+            name: 'newRole',
+            type: 'list',
+            message: "Which role do you want to assign the selected employee?",
+            choices: roles
+        }
+
+    ];
+
 }
 
 module.exports = {
     menuPrompt,
     addDepartmentPrompt,
     addRolePrompt,
-    addEmployeePrompt
+    addEmployeePrompt,
+    updateEmployeeRolePrompt
 }

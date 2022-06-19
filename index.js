@@ -6,17 +6,19 @@ const {
   menuPrompt, 
   addDepartmentPrompt,
   addRolePrompt,
-  addEmployeePrompt } 
-  = require('./helpers/questions.js');
+  addEmployeePrompt,
+  updateEmployeeRolePrompt } 
+  = require('./helpers/prompts.js');
 const { 
-  departmentsTable, 
-  rolesTable, 
-  employeesTable,
-  getEmployees,
-  getRoles,
-  insertDepartment,
-  insertRole,
-  insertEmployee } 
+  departmentsTableQuery, 
+  rolesTableQuery, 
+  employeesTableQuery,
+  getEmployeesQuery,
+  getRolesQuery,
+  insertDepartmentQuery,
+  insertRoleQuery,
+  insertEmployeeQuery,
+  updateEmployeeRoleQuery } 
   = require('./helpers/queries.js');
 
 const db = mysql.createConnection(
@@ -44,7 +46,7 @@ const displayMenu = () => {
           break;
 
         case 'Update Employee Role':
-          
+          updateEmployeeRole();
           break;
 
         case 'View All Roles':
@@ -83,13 +85,13 @@ displayTable = (query) => {
 
   switch (query) {
     case 'Employees':
-      table = employeesTable;
+      table = employeesTableQuery;
       break;
     case 'Roles':
-      table = rolesTable;
+      table = rolesTableQuery;
       break;
     case 'Departments':
-      table = departmentsTable;
+      table = departmentsTableQuery;
       break;
     default:
       console.error('invalid table');
@@ -108,7 +110,7 @@ const addDepartment = () => {
   inquirer
   .prompt(addDepartmentPrompt)
     .then (({ newDepartment }) => {
-        db.query(insertDepartment(newDepartment), (err, results) => {
+        db.query(insertDepartmentQuery(newDepartment), (err, results) => {
           err ? console.error(err) : console.log(`Added ${newDepartment} department to the database\n`);
           displayMenu();
         });
@@ -122,7 +124,7 @@ const addRole = () => {
 
   let departments = [];
 
-  db.query(departmentsTable, (err, results) => {
+  db.query(departmentsTableQuery, (err, results) => {
     err ? console.error(err) : departments = results;
 
     const departmentNames = departments.map(department => department.name);
@@ -136,7 +138,7 @@ const addRole = () => {
           if(department.name === roleDepartment) departmentID = department.id;
         });
 
-        db.query(insertRole(roleName, roleSalary, departmentID), (err, results) => {
+        db.query(insertRoleQuery(roleName, roleSalary, departmentID), (err, results) => {
           err ? console.error(err) : console.log(`Added ${roleName} role to the database\n`);
           displayMenu();
         })
@@ -151,14 +153,14 @@ const addEmployee = () => {
   
   let employees = [];
 
-  db.query(getEmployees, (err, results) => {
+  db.query(getEmployeesQuery, (err, results) => {
     err ? console.error(err) : employees = results;
     
     const employeeNames = employees.map(employee => employee.name);
     employeeNames.unshift('None');
     let roles;
 
-    db.query(getRoles, (err, results) => {
+    db.query(getRolesQuery, (err, results) => {
       err ? console.error(err) : roles = results;
       
       const roleTitles = roles.map(role => role.title);
@@ -177,10 +179,51 @@ const addEmployee = () => {
           if(employee.name === employeeManager) managerID = employee.id;
         });
 
-        console.log(roleID, managerID);
-
-        db.query(insertEmployee(employeeFirstName, employeeLastName, roleID, managerID), (err, results) => {
+        db.query(insertEmployeeQuery(employeeFirstName, employeeLastName, roleID, managerID), (err, results) => {
           err ? console.error(err) : console.log(`Added employee ${employeeFirstName} ${employeeLastName} to the database\n`);
+          displayMenu();
+        })
+      })
+      .catch(err => console.error(err)
+      );
+
+    });
+
+  });
+
+};
+
+const updateEmployeeRole = () => {
+
+  let employees = [];
+
+  db.query(getEmployeesQuery, (err, results) => {
+    err ? console.error(err) : employees = results;
+    
+    const employeeNames = employees.map(employee => employee.name);
+    let roles;
+
+    db.query(getRolesQuery, (err, results) => {
+      err ? console.error(err) : roles = results;
+      
+      const roleTitles = roles.map(role => role.title);
+    
+      inquirer
+      .prompt(updateEmployeeRolePrompt(employeeNames, roleTitles))
+      .then(({ employeeName, newRole }) => {
+
+        let newRoleID;
+        roles.forEach((role) => {
+          if(role.title === newRole) newRoleID = role.id;
+        });
+
+        let employeeID;
+        employees.forEach((employee) => {
+          if(employee.name === employeeName) employeeID = employee.id;
+        });
+
+        db.query(updateEmployeeRoleQuery(employeeID, newRoleID), (err, results) => {
+          err ? console.error(err) : console.log(`Updated employee ${employeeName}'s role to ${newRole}\n`);
           displayMenu();
         })
       })
