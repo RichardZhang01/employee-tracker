@@ -79,7 +79,6 @@ const addRolePrompt = (departments) => {
             name: 'roleDepartment',
             type: 'list',
             message: 'Which department does the role belong to?',
-            loop: false,
             choices: departments
         }
 
@@ -87,8 +86,59 @@ const addRolePrompt = (departments) => {
 
 };
 
+const addEmployeePrompt = (employees, roles) => {
+
+    return [
+
+        {
+            name: 'employeeFirstName',
+            type: 'input',
+            message: "What is the employee's first name?",
+            validate: input => {
+                if (!input) {
+                    console.log('\x1b[31mNo Input detected. Please enter a name.\x1b[0m');
+                    return false;
+                } else {
+                    return true;
+                }
+            } 
+        },
+
+        {
+            name: 'employeeLastName',
+            type: 'input',
+            message: "What is the employee's last name?",
+            validate: input => {
+                if (!input) {
+                    console.log('\x1b[31mNo Input detected. Please enter a name.\x1b[0m');
+                    return false;
+                } else {
+                    return true;
+                }
+            } 
+        },
+
+        {
+            name: 'employeeRole',
+            type: 'list',
+            message: "What is the employee's role?",
+            choices: roles
+        },
+
+        {
+            name: 'employeeManager',
+            type: 'list',
+            message: "Who is the employee's manager?",
+            choices: employees
+        }
+
+    ];
+
+}
+
 module.exports = {
     menuPrompt,
     addDepartmentPrompt,
-    addRolePrompt
+    addRolePrompt,
+    addEmployeePrompt
 }

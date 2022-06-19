@@ -5,14 +5,18 @@ const inquirer = require('inquirer');
 const { 
   menuPrompt, 
   addDepartmentPrompt,
-  addRolePrompt } 
+  addRolePrompt,
+  addEmployeePrompt } 
   = require('./helpers/questions.js');
 const { 
   departmentsTable, 
   rolesTable, 
   employeesTable,
+  getEmployees,
+  getRoles,
   insertDepartment,
-  insertRole } 
+  insertRole,
+  insertEmployee } 
   = require('./helpers/queries.js');
 
 const db = mysql.createConnection(
@@ -36,7 +40,7 @@ const displayMenu = () => {
           break;
 
         case 'Add Employee':
-          
+          addEmployee();
           break;
 
         case 'Update Employee Role':
@@ -105,7 +109,7 @@ const addDepartment = () => {
   .prompt(addDepartmentPrompt)
     .then (({ newDepartment }) => {
         db.query(insertDepartment(newDepartment), (err, results) => {
-          err ? console.error(err) : console.log(`Added ${newDepartment} department to the database`);
+          err ? console.error(err) : console.log(`Added ${newDepartment} department to the database\n`);
           displayMenu();
         });
     })
@@ -133,10 +137,58 @@ const addRole = () => {
         });
 
         db.query(insertRole(roleName, roleSalary, departmentID), (err, results) => {
-          err ? console.error(err) : console.log(`Added ${roleName} role to the database`);
+          err ? console.error(err) : console.log(`Added ${roleName} role to the database\n`);
           displayMenu();
         })
       })
+      .catch(err => console.error(err)
+      );
+  });
+
+};
+
+const addEmployee = () => {
+  
+  let employees = [];
+
+  db.query(getEmployees, (err, results) => {
+    err ? console.error(err) : employees = results;
+    
+    const employeeNames = employees.map(employee => employee.name);
+    employeeNames.unshift('None');
+    let roles;
+
+    db.query(getRoles, (err, results) => {
+      err ? console.error(err) : roles = results;
+      
+      const roleTitles = roles.map(role => role.title);
+    
+      inquirer
+      .prompt(addEmployeePrompt(employeeNames, roleTitles))
+      .then(({ employeeFirstName, employeeLastName, employeeRole, employeeManager }) => {
+
+        let roleID;
+        roles.forEach((role) => {
+          if(role.title === employeeRole) roleID = role.id;
+        });
+
+        let managerID = null;
+        employees.forEach((employee) => {
+          if(employee.name === employeeManager) managerID = employee.id;
+        });
+
+        console.log(roleID, managerID);
+
+        db.query(insertEmployee(employeeFirstName, employeeLastName, roleID, managerID), (err, results) => {
+          err ? console.error(err) : console.log(`Added employee ${employeeFirstName} ${employeeLastName} to the database\n`);
+          displayMenu();
+        })
+      })
+      .catch(err => console.error(err)
+      );
+
+    });
+
   });
 
 };
