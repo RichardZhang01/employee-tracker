@@ -7,19 +7,22 @@ const {
   addDepartmentPrompt,
   addRolePrompt,
   addEmployeePrompt,
-  updateEmployeeRolePrompt } 
-  = require('./helpers/prompts.js');
+  updateEmployeeRolePrompt,
+  viewByManagerPrompt 
+} = require('./helpers/prompts.js');
 const { 
   departmentsTableQuery, 
   rolesTableQuery, 
   employeesTableQuery,
+  employeesByManagerQuery,
   getEmployeesQuery,
   getRolesQuery,
+  getManagersQuery,
   insertDepartmentQuery,
   insertRoleQuery,
   insertEmployeeQuery,
-  updateEmployeeRoleQuery } 
-  = require('./helpers/queries.js');
+  updateEmployeeRoleQuery 
+} = require('./helpers/queries.js');
 
 const db = mysql.createConnection(
     {
@@ -37,8 +40,13 @@ const displayMenu = () => {
   .prompt(menuPrompt)
     .then(({ menu: selection }) => {
       switch (selection) {
+
         case 'View All Employees':
           displayTable('Employees');
+          break;
+
+        case 'View Employees By Manager':
+          displayEmployeesByManager();
           break;
 
         case 'Add Employee':
@@ -66,7 +74,7 @@ const displayMenu = () => {
           break;
 
         case 'Quit':
-          
+          quit();
           break;
 
         default:
@@ -78,7 +86,7 @@ const displayMenu = () => {
 
 };
 
-displayTable = (query) => {
+const displayTable = (query) => {
 
   let table;
   console.log('\n');
@@ -101,6 +109,37 @@ displayTable = (query) => {
   db.query(table, (err, results) => {    
     err ? console.error(err) : console.table(results);
     displayMenu();
+  });
+
+};
+
+const displayEmployeesByManager = () => {
+
+  let managers = [];
+
+  db.query(getManagersQuery, (err, results) => {
+    err ? console.error(err) : managers = results;
+
+    const managerNames = managers.map(manager => manager.name);
+
+    inquirer
+    .prompt(viewByManagerPrompt(managerNames))
+      .then(({ managerName }) => {
+
+        let managerID;
+        managers.forEach((manager) => {
+          if(manager.name === managerName) managerID = manager.id;
+        });
+
+        console.log('\n');
+
+        db.query(employeesByManagerQuery(managerID), (err, results) => {
+          err ? console.error(err) : console.table(results);
+          displayMenu();
+        })
+      })
+      .catch(err => console.error(err)
+      );
   });
 
 };
@@ -235,6 +274,11 @@ const updateEmployeeRole = () => {
   });
 
 };
+
+const quit = () => {
+  console.log("\x1b[32mGoodbye!\x1b[0m");
+  process.exit();
+}
 
 const init = () => {
   displayMenu();

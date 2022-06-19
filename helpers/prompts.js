@@ -7,6 +7,7 @@ const menuPrompt = [
         loop: false,
         choices: [
             'View All Employees',
+            'View Employees By Manager',
             'Add Employee',
             'Update Employee Role',
             'View All Roles',
@@ -156,6 +157,21 @@ const updateEmployeeRolePrompt = (employees, roles) => {
 
     ];
 
+};
+
+const viewByManagerPrompt = (managers) => {
+
+    return [
+
+        {
+            name: 'managerName',
+            type: 'list',
+            message: "Which manager's employees would you like to view?",
+            choices: managers
+        }
+
+    ];
+
 }
 
 module.exports = {
@@ -163,5 +179,6 @@ module.exports = {
     addDepartmentPrompt,
     addRolePrompt,
     addEmployeePrompt,
-    updateEmployeeRolePrompt
+    updateEmployeeRolePrompt,
+    viewByManagerPrompt
 }
