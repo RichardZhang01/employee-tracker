@@ -30,12 +30,12 @@ Alternatively, you can navigate to the application's installation location in [G
 
 To create the database, in the terminal start MySQL by running:
 
-        mysql -u root -p
+      mysql -u root -p
 
 Then create the database by running:
 
-        source ./db/schema.sql;
-        source ./db/seeds.sql;
+      source ./db/schema.sql;
+      source ./db/seeds.sql;
 
 ## <a id="usage"></a>Usage
 
