@@ -44,7 +44,7 @@ const db = mysql.createConnection(
     {
       host: 'localhost',
       user: 'root',
-      password: '**Your MySQL Password Here**',
+      password: 'MySQL',
       database: 'employees_db'
     },
 );
@@ -177,7 +177,7 @@ const displayEmployeesByManager = () => {
         console.log('\n');
 
         // displays table, returns to menu
-        db.query(employeesByManagerQuery(managerName), (err, results) => {
+        db.query(employeesByManagerQuery, managerName, (err, results) => {
           err ? console.error(err) : console.table(results);
           displayMenu();
         })
@@ -210,7 +210,7 @@ const displayEmployeesByDepartment = () => {
         console.log('\n');
 
         // query db for employee table for department
-        db.query(employeesByDepartmentQuery(departmentName), (err, results) => {
+        db.query(employeesByDepartmentQuery, departmentName, (err, results) => {
           
           if (err) {
             console.error(err);
@@ -248,7 +248,7 @@ const displayBudget = () => {
 
         console.log('\n');
         // queries db for budget by selected department
-        db.query(budgetByDepartmentQuery(departmentName), (err, results) => {
+        db.query(budgetByDepartmentQuery, departmentName, (err, results) => {
           
           if (err) {
             console.error(err);
@@ -274,7 +274,7 @@ const addDepartment = () => {
   .prompt(addDepartmentPrompt)
     .then (({ newDepartment }) => {
         // queries db to add department
-        db.query(insertDepartmentQuery(newDepartment), (err, results) => {
+        db.query(insertDepartmentQuery, newDepartment, (err, results) => {
           err ? console.error(err) : console.log(`\x1b[32mAdded ${newDepartment} department to the database\x1b[0m\n`);
           // return to menu
           displayMenu();
@@ -307,7 +307,7 @@ const addRole = () => {
           if(department.name === roleDepartment) departmentID = department.id;
         });
         // queries db to insert new role into its department
-        db.query(insertRoleQuery(roleName, roleSalary, departmentID), (err, results) => {
+        db.query(insertRoleQuery, [roleName, roleSalary, departmentID], (err, results) => {
           err ? console.error(err) : console.log(`\x1b[32mAdded ${roleName} role to the database\x1b[0m\n`);
           // return to menu
           displayMenu();
@@ -354,7 +354,7 @@ const addEmployee = () => {
           if(employee.name === employeeManager) managerID = employee.id;
         });
         // query db to insert employee into db
-        db.query(insertEmployeeQuery(employeeFirstName, employeeLastName, roleID, managerID), (err, results) => {
+        db.query(insertEmployeeQuery, [employeeFirstName, employeeLastName, roleID, managerID], (err, results) => {
           err ? console.error(err) : console.log(`\x1b[32mAdded employee ${employeeFirstName} ${employeeLastName} to the database\x1b[0m\n`);
           // return to menu
           displayMenu();
@@ -392,7 +392,7 @@ const deleteDepartment = () => {
             if(department.name === departmentName) departmentID = department.id;
           });
           // query db to delete department
-          db.query(deleteDepartmentQuery(departmentID), (err, results) => {
+          db.query(deleteDepartmentQuery, departmentID,(err, results) => {
             err ? console.error(err) : console.log(`\x1b[32mDeleted ${departmentName} department from the database\x1b[0m\n`);
             // return to menu
             displayMenu();
@@ -434,7 +434,7 @@ const deleteRole = () => {
             if(role.title === roleName) roleID = role.id;
           });
           // query db to delete role
-          db.query(deleteRoleQuery(roleID), (err, results) => {
+          db.query(deleteRoleQuery, roleID, (err, results) => {
             err ? console.error(err) : console.log(`\x1b[32mDeleted ${roleName} role from the database\x1b[0m\n`);
             // return to menu
             displayMenu();
@@ -475,7 +475,7 @@ const deleteEmployee = () => {
             if(employee.name === employeeName) employeeID = employee.id;
           });
 
-          db.query(deleteEmployeeQuery(employeeID), (err, results) => {
+          db.query(deleteEmployeeQuery, employeeID, (err, results) => {
             err ? console.error(err) : console.log(`\x1b[32mDeleted employee ${employeeName} from the database\x1b[0m\n`);
             displayMenu();
           })
@@ -527,7 +527,7 @@ const updateEmployeeRole = () => {
           if(employee.name === employeeName) employeeID = employee.id;
         });
         //queries db to update employee's role
-        db.query(updateEmployeeRoleQuery(employeeID, newRoleID), (err, results) => {
+        db.query(updateEmployeeRoleQuery, [newRoleID, employeeID], (err, results) => {
           err ? console.error(err) : console.log(`\x1b[32mUpdated employee ${employeeName}'s role to ${newRole}\x1b[0m\n`);
           // return to menu
           displayMenu();
@@ -541,6 +541,7 @@ const updateEmployeeRole = () => {
   });
 
 };
+
 // changes employee's manager
 const updateEmployeeManager = () => {
   // holds employee names and ids
@@ -570,7 +571,7 @@ const updateEmployeeManager = () => {
           if(employee.name === employeeName) employeeID = employee.id;
         });
         // query db to change employee's manager
-        db.query(updateEmployeeManagerQuery(employeeID, newManagerID), (err, results) => {
+        db.query(updateEmployeeManagerQuery, [newManagerID, employeeID], (err, results) => {
           err ? console.error(err) : console.log(`\x1b[32mUpdated employee ${employeeName}'s manager to ${newManager}\x1b[0m\n`);
           // return to menu
           displayMenu();

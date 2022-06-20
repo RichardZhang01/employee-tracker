@@ -21,43 +21,40 @@ LEFT JOIN employee AS m
 ON e.manager_id = m.id
 ORDER BY e.first_name, e.last_name;`;
 
-const employeesByManagerQuery = (managerName) => {
-    return `SELECT e.id, e.first_name, e.last_name, r.title, d.name AS department, r.salary, CONCAT(m.first_name, " ", m.last_name) AS manager
-    FROM employee AS e
-    LEFT JOIN role AS r
-    ON e.role_id = r.id
-    LEFT JOIN department AS d
-    ON r.department_id = d.id
-    INNER JOIN employee AS m
-    ON e.manager_id = m.id
-    WHERE CONCAT(m.first_name, " ", m.last_name) = "${managerName}"
-    ORDER BY e.first_name, e.last_name;`
-};
+const employeesByManagerQuery = 
+`SELECT e.id, e.first_name, e.last_name, r.title, d.name AS department, r.salary, CONCAT(m.first_name, " ", m.last_name) AS manager
+FROM employee AS e
+LEFT JOIN role AS r
+ON e.role_id = r.id
+LEFT JOIN department AS d
+ON r.department_id = d.id
+INNER JOIN employee AS m
+ON e.manager_id = m.id
+WHERE CONCAT(m.first_name, " ", m.last_name) = ?
+ORDER BY e.first_name, e.last_name;`
 
-const employeesByDepartmentQuery = (departmentName) => {
-    return `SELECT e.id, e.first_name, e.last_name, r.title, d.name AS department, r.salary, CONCAT(m.first_name, " ", m.last_name) AS manager
-    FROM employee AS e
-    LEFT JOIN role AS r
-    ON e.role_id = r.id
-    INNER JOIN department AS d
-    ON r.department_id = d.id
-    LEFT JOIN employee AS m
-    ON e.manager_id = m.id
-    WHERE d.name = "${departmentName}"
-    ORDER BY e.first_name, e.last_name;`
-};
+const employeesByDepartmentQuery = 
+`SELECT e.id, e.first_name, e.last_name, r.title, d.name AS department, r.salary, CONCAT(m.first_name, " ", m.last_name) AS manager
+FROM employee AS e
+LEFT JOIN role AS r
+ON e.role_id = r.id
+INNER JOIN department AS d
+ON r.department_id = d.id
+LEFT JOIN employee AS m
+ON e.manager_id = m.id
+WHERE d.name = ?
+ORDER BY e.first_name, e.last_name;`
 
-const budgetByDepartmentQuery = (departmentName) => {
-    return `SELECT d.name AS department, SUM(r.salary) AS total_utilized_budget 
-    FROM employee AS e
-    INNER JOIN role AS r
-    ON e.role_id = r.id
-    LEFT JOIN department AS d
-    ON r.department_id = d.id
-    WHERE d.name = "${departmentName}"
-    GROUP BY department
-    ORDER BY department;`
-};
+const budgetByDepartmentQuery = 
+`SELECT d.name AS department, SUM(r.salary) AS total_utilized_budget 
+FROM employee AS e
+INNER JOIN role AS r
+ON e.role_id = r.id
+LEFT JOIN department AS d
+ON r.department_id = d.id
+WHERE d.name = ?
+GROUP BY department
+ORDER BY department;`
 
 const getEmployeesQuery =
 `SELECT CONCAT(first_name, " ", last_name) AS name, id
@@ -76,47 +73,40 @@ INNER JOIN employee AS m
 ON e.manager_id = m.id
 GROUP BY name;`;
 
-const insertDepartmentQuery = (newDepartment) => {
-    return `INSERT INTO department (name)
-    VALUES ("${newDepartment}");`
-};
+const insertDepartmentQuery = 
+`INSERT INTO department (name)
+VALUES (?);`
 
-const insertRoleQuery = (title, salary, departmentID) => {
-    return `INSERT INTO role (title, salary, department_id)
-    VALUES ("${title}", ${salary}, ${departmentID});`
-};
+const insertRoleQuery = 
+`INSERT INTO role (title, salary, department_id)
+VALUES (?, ?, ?);`
 
-const insertEmployeeQuery = (firstName, lastName, roleID, managerID) => {
-    return `INSERT INTO employee (first_name, last_name, role_id, manager_id)
-    VALUES ("${firstName}", "${lastName}", ${roleID}, ${managerID});`
-};
 
-const deleteDepartmentQuery = (departmentID) => {
-    return `DELETE FROM department
-    WHERE id = ${departmentID};`
-};
+const insertEmployeeQuery = 
+`INSERT INTO employee (first_name, last_name, role_id, manager_id)
+VALUES (?, ?, ?, ?);`
 
-const deleteRoleQuery = (roleID) => {
-    return `DELETE FROM role
-    WHERE id = ${roleID};`
-};
+const deleteDepartmentQuery = 
+`DELETE FROM department
+WHERE id = ?;`
 
-const deleteEmployeeQuery = (employeeID) => {
-    return `DELETE FROM employee
-    WHERE id = ${employeeID};`
-};
+const deleteRoleQuery = 
+`DELETE FROM role
+WHERE id = ?;`
 
-const updateEmployeeRoleQuery = (employeeID, newRoleID) => {
-    return `UPDATE employee
-    SET role_id = ${newRoleID}
-    WHERE id = ${employeeID};`   
-};
+const deleteEmployeeQuery = 
+`DELETE FROM employee
+WHERE id = ?;`
 
-const updateEmployeeManagerQuery = (employeeID, newManagerID) => {
-    return `UPDATE employee
-    SET manager_id = ${newManagerID}
-    WHERE id = ${employeeID};`   
-};
+const updateEmployeeRoleQuery = 
+`UPDATE employee
+SET role_id = ?
+WHERE id = ?;`   
+
+const updateEmployeeManagerQuery = 
+`UPDATE employee
+SET manager_id = ?
+WHERE id = ?;`   
 
 module.exports = {
     departmentsTableQuery,
