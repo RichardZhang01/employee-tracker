@@ -47,7 +47,7 @@ Once the application is opened in Visual Studio Code, or navigated to using Git 
 
 ## <a id="video"></a>Video Demonstration
 
-The full video demonstration can be found [here](https://drive.google.com/file/d/1leaS34yjzFNGZMNpXGsZMu5aj2CkGZ1H/view)
+The full video demonstration can be found [here](https://drive.google.com/file/d/1akaXlDVAALUGOg0UpZPiW7CJCMMjRKeb/view)
 
 ![Screenshot of the command-line using the app](./assets/images/screenshot-1.png)
 ![Screenshot of the command-line using the app](./assets/images/screenshot-2.png)

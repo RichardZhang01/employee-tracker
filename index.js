@@ -44,7 +44,7 @@ const db = mysql.createConnection(
     {
       host: 'localhost',
       user: 'root',
-      password: 'MySQL',
+      password: '**Your MySQL Password Here**',
       database: 'employees_db'
     },
 );
